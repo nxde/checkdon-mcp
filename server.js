@@ -9,6 +9,14 @@ import * as z from "zod/v4";
 
 const PORT = Number(process.env.PORT) || 3000;
 
+const AUTHKIT_ISSUER =
+    process.env.AUTHKIT_ISSUER ||
+    "https://right-haven-96-staging.authkit.app";
+
+const MCP_RESOURCE_URL =
+    process.env.MCP_RESOURCE_URL ||
+    "https://site--checkdon-mcp--6zt5v8kxj6g9.code.run/mcp";
+
 // =========================
 // 1. SCHEMA DỮ LIỆU ĐẦU VÀO
 // =========================
@@ -159,6 +167,14 @@ const app = allowedHosts?.length
         allowedHosts
     })
     : createMcpExpressApp();
+
+app.get("/.well-known/oauth-protected-resource", (req, res) => {
+    res.json({
+        resource: MCP_RESOURCE_URL,
+        authorization_servers: [AUTHKIT_ISSUER],
+        bearer_methods_supported: ["header"]
+    });
+});
 
 app.get("/health", (req, res) => {
     res.json({
